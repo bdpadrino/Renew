@@ -375,137 +375,114 @@ https://twitter.com/marco_bf
             </div><!-- container -->
         </div> <!--rectangulo-->
     </div> <!--mt-5-->
+
+    <script src="assets/jquery-3.3.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap.min.js"></script>
+    <script>
+      $('a.js-scroll-trigger[href*="#"]:not([href="#"])').click(function(e) {
+        if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+          offset = $(this).data('offset');
+          offset = (offset) ? offset : 0;
+          target = $(this.hash);
+          if (target.length) {
+            $('html, body').animate({
+              scrollTop: target.offset().top + offset
+            }, 1000);
+            window.location.hash = this.hash.slice(1);
+            return false;
+          }
+        }
+      });
+
+      $('#carouselServicios').on('slide.bs.carousel', function (e) {
+        var $e = $(e.relatedTarget);
+        var idx = $e.index();
+        var itemsPerSlide = 3;
+        var totalItems = $('#carouselServicios .carousel-item').length;
+
+        if (idx >= totalItems-(itemsPerSlide-1)) {
+          var it = itemsPerSlide - (totalItems - idx);
+          for (var i=0; i<it; i++) {
+            if (e.direction=="left") {
+              $('#carouselServicios .carousel-item').eq(i).appendTo('#carouselServicios .carousel-inner');
+            }
+            else {
+              $('#carouselServicios .carousel-item').eq(0).appendTo('#carouselServicios .carousel-inner');
+            }
+          }
+        }
+      });
+
+      $("#carouselServicios, #carouselGaleria").on("touchstart", function(event){
+        var xClick = event.originalEvent.touches[0].pageX;
+        $(this).one("touchmove", function(event){
+          var xMove = event.originalEvent.touches[0].pageX;
+          if( Math.floor(xClick - xMove) > 5 ){
+            $(this).carousel('next');
+          }
+          else if( Math.floor(xClick - xMove) < -5 ){
+            $(this).carousel('prev');
+          }
+        });
+        $(".carousel").on("touchend", function(){
+          $(this).off("touchmove");
+        });
+      });
+
+      // Example starter JavaScript for disabling form submissions if there are invalid fields
+      (function() {
+        'use strict';
+
+        window.addEventListener('load', function() {
+          // Fetch all the forms we want to apply custom Bootstrap validation styles to
+          var forms = document.getElementsByClassName('needs-validation');
+
+          // Loop over them and prevent submission
+          var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+              if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+                console.log('Todo está mal');
+              } else {
+                event.preventDefault();
+                var formData = new FormData(form);
+
+                $.ajax({
+                  url: 'sendMail.php',
+                  type: 'POST',
+                  data: formData,
+                  success: function (data) {
+                    console.log(data);
+                    var htmlAlert = "<div class='alert alert-dismissible alert-success fade show' role='alert'>";
+                    htmlAlert += "Gracias por contactarnos, tu correo ha sido enviado.";
+                    htmlAlert += "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>";
+                    htmlAlert += "<span aria-hidden='true'>&times;</span></button>";
+                    htmlAlert += "</div>";
+                    $('#alert').append(htmlAlert);
+                  },
+                  error: function(data) {
+                    console.log(data);
+                    var htmlAlert = "<div class='alert alert-dismissible alert-danger fade show' role='alert'>";
+                    htmlAlert += "Ha ocurrido un error intentelo nuevamente.";
+                    htmlAlert += "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>";
+                    htmlAlert += "<span aria-hidden='true'>&times;</span></button>";
+                    htmlAlert += "</div>";
+                    $('#alert').append(htmlAlert);
+                  },
+                  cache: false,
+                  contentType: false,
+                  processData: false
+                });
+              }
+              form.classList.add('was-validated');
+            }, false);
+          });
+        }, false);
+      })();
+
+    </script>
 </body>
 
-<script>
-   var sliderTeam = (function(document, $) {
-  
-  'use strict';
-  
-  var $sliderTeams = $('.slider--teams'),
-      $list = $('#list'),
-      $listItems = $('#list li'),
-      $nItems = $listItems.length,
-      $nView = 3,
-      autoSlider,
-      $current = 0,
-      $isAuto = true,
-      $acAuto = 2500,
-      
-      _init = function() {
-        _initWidth();
-        _eventInit();
-      },
-      
-      _initWidth = function() {
-        $list.css({
-          'margin-left': ~~(100 / $nView) + '%',
-          'width': ~~(100 * ($nItems / $nView)) + '%'
-        });
-        $listItems.css('width', 100 / $nItems + '%');
-        $sliderTeams.velocity({ opacity: 1 }, { display: "block" }, { delay:1000 });
-      },
-      
-      _eventInit = function() {
-        
-        window.requestAnimFrame = (function() {
-          return  window.requestAnimationFrame       || 
-              window.webkitRequestAnimationFrame || 
-              window.mozRequestAnimationFrame    || 
-              window.oRequestAnimationFrame      || 
-              window.msRequestAnimationFrame     || 
-              function(callback, element){
-                window.setTimeout(callback, 1000 / 60);
-              };
-        })();
-
-        window.requestInterval = function(fn, delay) {
-            if( !window.requestAnimationFrame       && 
-                !window.webkitRequestAnimationFrame && 
-                !window.mozRequestAnimationFrame    && 
-                !window.oRequestAnimationFrame      && 
-                !window.msRequestAnimationFrame)
-                    return window.setInterval(fn, delay);
-            var start = new Date().getTime(),
-            handle = new Object();
-
-            function loop() {
-                var current = new Date().getTime(),
-                delta = current - start;
-                if(delta >= delay) {
-                    fn.call();
-                    start = new Date().getTime();
-                }
-                handle.value = requestAnimFrame(loop);
-            };
-            handle.value = requestAnimFrame(loop);
-            return handle;
-        }
-
-        window.clearRequestInterval = function(handle) {
-            window.cancelAnimationFrame ? window.cancelAnimationFrame(handle.value) :
-            window.webkitCancelRequestAnimationFrame ? window.webkitCancelRequestAnimationFrame(handle.value)   :
-            window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) :
-            window.oCancelRequestAnimationFrame ? window.oCancelRequestAnimationFrame(handle.value) :
-            window.msCancelRequestAnimationFrame ? msCancelRequestAnimationFrame(handle.value) :
-            clearInterval(handle);
-        };
-        
-        $.each($listItems, function(i) {
-          var $this = $(this);
-          $this.on('touchstart click', function(e) {
-            e.preventDefault();
-            _stopMove(i);
-            _moveIt($this, i);
-          });
-        });
-        
-        autoSlider = requestInterval(_autoMove, $acAuto);
-      },
-      
-      _moveIt = function(obj, x) {
-        
-        var n = x;
-        
-        obj.find('figure').addClass('active');        
-        $listItems.not(obj).find('figure').removeClass('active');
-        
-        $list.velocity({
-          translateX: ~~((-(100 / $nItems)) * n) + '%',
-          translateZ: 0
-        }, {
-          duration: 1000,
-          easing: [400, 26],
-          queue: false
-        });
-        
-      },
-      
-      _autoMove = function(currentSlide) {
-        if ($isAuto) { 
-          $current = ~~(($current + 1) % $nItems);
-        } else {
-          $current = currentSlide;
-        }
-        console.log($current);
-        _moveIt($listItems.eq($current), $current);
-      },
-      
-      _stopMove = function(x) {
-        clearRequestInterval(autoSlider);
-        $isAuto = false;
-        _autoMove(x);
-      };
-  
-  return {
-    init: _init
-  };
-
-})(document, jQuery);
-
-$(window).load(function(){
-  'use strict';
-  sliderTeam.init();
-});
-</script>
 </html>
